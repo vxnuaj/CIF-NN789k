@@ -1,5 +1,7 @@
-## CIFAR-NN
-A Neural Network, to classify the CIFAR-10 dataset.
+<img src = 'images/cifar.png' align = 'center'></img>
+
+# CIF-NN789k
+A 789K parameter Neural Network, built in pure NumPy, with Adam + BatchNorm, to classify the CIFAR-10 dataset.
 
 ### Architecture:
 
