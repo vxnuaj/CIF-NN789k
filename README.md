@@ -15,9 +15,9 @@ Output Layer Size: 10
 
 ### Hyperparameters
 
-Alpha: .01<br>
-Beta_1 (first moment term): .9<br>
-Beta_2 (second moemnt term): .99<br>
+`Alpha`: .01<br>
+`Beta_1` (first moment term): .9<br>
+`Beta_2` (second moemnt term): .99<br>
 
 ### Training Results
 
