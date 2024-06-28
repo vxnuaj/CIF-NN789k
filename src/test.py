@@ -18,8 +18,8 @@ def test(X_test, Y_test, one_hot_y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, e
         acc_vec.append(acc)
         loss_vec.append(loss)
     
-    acc = np.mean(acc) 
-    loss = np.mean(loss)
+    acc = np.mean(acc_vec) 
+    loss = np.mean(loss_vec)
     return acc, loss
 
 file1 = 'model/CIFARNN1.pkl'
