@@ -27,7 +27,7 @@ Mini-Batch Size: 2048 samples<br>
 Total Mini Batches: 24<br>
 Epochs: 1000 (24000 training steps)
 
-Loss: 0.0024985241248325625
+Loss: 0.0024985241248325625<br>
 Accuracy: 99.90234375
 
 ### Testing?
