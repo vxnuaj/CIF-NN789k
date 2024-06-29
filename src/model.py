@@ -61,10 +61,10 @@ def forward(x, w1, b1, g1, w2, b2, g2, keep_prob):
     z1_bnorm = z1_norm * g1 + b1
     a1 = leaky_relu(z1_bnorm)
    
-    d1 = np.random.rand(a1.shape[0], a1.shape[1])
+    '''d1 = np.random.rand(a1.shape[0], a1.shape[1])
     d1 = d1 <= keep_prob
     a1 = np.multiply(a1, d1)
-    a1 /= keep_prob
+    a1 /= keep_prob'''
     
     z2 = np.dot(w2, a1)
     z2_norm, std2,var2, mu2 = batchnorm(z2)

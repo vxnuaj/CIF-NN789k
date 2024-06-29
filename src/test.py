@@ -24,8 +24,9 @@ def test(X_test, Y_test, one_hot_y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, e
 
 file1 = 'model/CIFARNN1.pkl'
 file2 = 'model/MeanVarNN1.pkl.npz'
+file3 = 'dataset/test_batch' 
 
-X_test, Y_test = cifar_test_load()
+X_test, Y_test = cifar_test_load(file3)
 X_test, Y_test = minibatches(X_test, Y_test, 2048)
 one_hot_y = one_hot(Y_test, 10)
 w1, b1, g1, w2, b2, g2 = load_model(file1)

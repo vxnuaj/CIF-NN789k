@@ -29,8 +29,8 @@ def cifar_train_load():
     
     return X_train, Y_train
 
-def cifar_test_load():
-    test_batch = load_data('dataset/data_batch_1') 
+def cifar_test_load(file):
+    test_batch = load_data(file)
     X_test = test_batch[b'data'] / 255
     Y_test = np.array(test_batch[b'labels']).reshape(-1, 1)
      

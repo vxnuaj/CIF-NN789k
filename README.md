@@ -10,7 +10,7 @@ A feed forward neural network with 2 Layers, 1 hidden, 1 output
 Using BatchNorm and the Adam Optimizer
 
 Input Size: 3072<br>
-Hidden Layer Size: 512<br>
+Hidden Layer Size: 256<br>
 Output Layer Size: 10
 
 ### Hyperparameters
@@ -27,9 +27,9 @@ Mini-Batch Size: 2048 samples<br>
 Total Mini Batches: 24<br>
 Epochs: 1000 (24000 training steps)
 
-Final Training Accuracy: 99.5117<br>
-Final Training Loss: 0.02777691373685564
+Loss: 0.0024985241248325625
+Accuracy: 99.90234375
 
-### Testing Results
+### Testing?
 
-The model was tested on 10000 unseen images from the CIFAR-10 dataset 
+Currently undergoing failure... will try again when my head stops spinning of confusion. Overfitting really hits hard.
