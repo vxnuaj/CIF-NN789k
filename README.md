@@ -35,7 +35,12 @@ Epochs: 1000 (24000 training steps)
 Loss: 1.0992273617467658<br>
 Accuracy: 61.669921875
 
-### Testing?
+### Testing
 
-Loss: 49.4140625<br>
-Accuracy: 1.5121818052284461
+Accuracy: 49.4140625<br>
+Loss: 1.5121818052284461
+
+
+After days of empirical testing and hours of compute time (I'm on a macbook, bear with me), I now conclude that I'm wasting my time trying to fit to a FF-Neural Net to 90%+ accuracy on CIFAR-10.
+
+It's best I just leave this up to CNNs.
