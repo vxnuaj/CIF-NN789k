@@ -1,7 +1,9 @@
 <img src = 'images/cifar.png' align = 'center'></img>
 
-# CIF-NN789k
+# CIF-NN-789k
 A 789K parameter Neural Network, built in pure NumPy, with Adam + BatchNorm, to classify the CIFAR-10 dataset.
+
+Here, I test the limits of Feed Forward Neural Networks in classifying color images.
 
 ### Architecture:
 
@@ -13,9 +15,12 @@ Input Size: 3072<br>
 Hidden Layer Size: 256<br>
 Output Layer Size: 10
 
+<img src = 'images/intw1_120.png' width = 650></img><br>
+<em style = 'font-size: 14px'>Internals of the model, @ the 120th neuron in the hidden layer, visualized in 3 color dimensions.</em>
+
 ### Hyperparameters
 
-`Alpha`: .01<br>
+`Alpha`: .01, changed to .0001 after ~50% accuracy<br>
 `Beta_1` (first moment term): .9<br>
 `Beta_2` (second moemnt term): .99<br>
 
@@ -27,9 +32,10 @@ Mini-Batch Size: 2048 samples<br>
 Total Mini Batches: 24<br>
 Epochs: 1000 (24000 training steps)
 
-Loss: 0.0024985241248325625<br>
-Accuracy: 99.90234375
+Loss: 1.0992273617467658<br>
+Accuracy: 61.669921875
 
 ### Testing?
 
-Currently undergoing failure... will try again when my head stops spinning of confusion. Overfitting really hits hard.
+Loss: 49.4140625<br>
+Accuracy: 1.5121818052284461

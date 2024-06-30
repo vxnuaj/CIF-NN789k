@@ -10,11 +10,13 @@ def init_params(input_features, *hidden_sizes, output_size = None, seed = 0):
     
     w1 = rng.normal(size = (hidden_sizes[0], input_features)) * np.sqrt(2 / input_features)
     b1 = np.zeros((hidden_sizes[0], 1))
-    g1 = np.ones((hidden_sizes[0],1 )) 
-    w2 = rng.normal(size = (output_size,hidden_sizes[0])) * np.sqrt(2 / hidden_sizes[0])
+    g1 = np.ones((hidden_sizes[0],1 ))
+   
+    w2 = rng.normal( size = (output_size, hidden_sizes[0])) * np.sqrt(2 / hidden_sizes[0]) 
     b2 = np.zeros((output_size, 1))
-    g2 = np.ones((output_size, 1)) 
-    return w1, b1, g1, w2, b2, g2 
+    g2 = np.ones((output_size, 1))
+       
+    return w1, b1, g1, w2, b2, g2
 
 def leaky_relu(z):
     return np.where( z > 0, z, .01*z)
@@ -70,32 +72,32 @@ def forward(x, w1, b1, g1, w2, b2, g2, keep_prob):
     z2_norm, std2,var2, mu2 = batchnorm(z2)
     z2_bnorm = z2_norm * g2 + b2
     a2 = softmax(z2_bnorm)
-       
+    
     return z1_norm, z1_bnorm, std1, var1, mu1, a1, z2_norm, z2_bnorm, std2, var2, mu2, a2 
 
     
-def cce(mini_onehot, a2):
+def cce(mini_onehot, a):
     eps = 1e-8 
-    loss = - ( 1 / mini_onehot.shape[1] ) * np.sum(mini_onehot * np.log(a2 + eps))
+    loss = - ( 1 / mini_onehot.shape[1] ) * np.sum(mini_onehot * np.log(a + eps))
     return loss
  
-def accuracy(y, a2):
-    pred = np.argmax(a2, axis = 0) 
+def accuracy(y, a):
+    pred = np.argmax(a, axis = 0) 
     acc = np.sum(y == pred) / y.size * 100 
     return acc, pred 
 
-def backward(x, mini_onehot, w2, w1, a2, a1, z2_norm, z1_bnorm, z1_norm, g2, g1, std2, std1):
+def backward(x, mini_onehot, w2, a2, a1, z2_norm, z1_bnorm, z1_norm, g2, g1, std2, std1):
     eps = 1e-8
 
-    dz2_bnorm = a2 - mini_onehot # 10, samples
-    dg2 = dz2_bnorm * z2_norm # 10, samples
-    db2 = dz2_bnorm # 10, 1
+    dz2_bnorm = a2 - mini_onehot
+    dg2 = np.sum(dz2_bnorm * z2_norm, axis = 1, keepdims = True) / mini_onehot.shape[1]# 10, samples
+    db2 = np.sum(dz2_bnorm, axis= 1, keepdims = True) / mini_onehot.shape[1] # 10, 1
     dz2 = dz2_bnorm * g2 * ( 1 / np.abs(std2 + eps))
     dw2 = np.dot(dz2, a1.T) / mini_onehot.shape[1]
     
     dz1_bnorm = np.dot(w2.T, dz2) * leaky_relu_deriv(z1_bnorm)
-    dg1 = dz1_bnorm * z1_norm
-    db1 = dz1_bnorm
+    dg1 = np.sum(dz1_bnorm * z1_norm, axis = 1, keepdims = True) / mini_onehot.shape[1]
+    db1 = np.sum(dz1_bnorm, axis = 1, keepdims = True) / mini_onehot.shape[1]
     dz1 =  dz1_bnorm * g1 * ( 1 / np.abs(std1 + eps))
     dw1 = np.dot(dz1, x.T) / mini_onehot.shape[1]
     
@@ -113,6 +115,7 @@ def update(w1, b1, g1, w2, b2, g2, dw1, db1, dg1, dw2, db2, dg2, vdw1, vdb1, vdg
     vdb2 = beta_1 * vdb2 + ( 1 - beta_1 ) * db2
     vdg2 = beta_2 * vdg2 + ( 1 - beta_1 ) * dg2
     
+    
     sdw1 = beta_2 * sdw1 + (1 - beta_2) * np.square(dw1)
     sdb1 = beta_2 * sdb1 + ( 1 - beta_2 ) * np.square(db1 )
     sdg1 = beta_2 * sdg1 + ( 1 - beta_2 ) * np.square(dg1)
@@ -121,6 +124,7 @@ def update(w1, b1, g1, w2, b2, g2, dw1, db1, dg1, dw2, db2, dg2, vdw1, vdb1, vdg
     sdb2 = beta_2 * sdb2 + ( 1 - beta_2 ) * np.square(db2)
     sdg2 = beta_2 * sdg2 + ( 1 - beta_2 ) * np.square(dg2)
 
+
     w1 = w1 - (alpha / (np.sqrt(sdw1 + eps))) * vdw1
     b1 = b1 - (alpha / (np.sqrt(sdb1 + eps))) * vdb1
     g1 = g1 - (alpha / (np.sqrt(sdg1 + eps))) * vdg1
@@ -128,13 +132,13 @@ def update(w1, b1, g1, w2, b2, g2, dw1, db1, dg1, dw2, db2, dg2, vdw1, vdb1, vdg
     w2 = w2 - (alpha / (np.sqrt(sdw2 + eps))) * vdw2
     b2 = b2 - (alpha / (np.sqrt(sdb2 + eps))) * vdb2
     g2 = g2 - (alpha / (np.sqrt(sdg2 + eps))) * vdg2
- 
+
     return w1, b1, g1, w2, b2, g2
 
 def gradient_descent(x, y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, ewa_mu2, ewa_var2, alpha, beta_1, beta_2, keep_prob, epochs, file, file2): 
     one_hot_y = one_hot(y, 10)
    
-    sdw1, sdb1, sdg1, sdw2, sdb2, sdg2 = 0, 0, 0, 0, 0, 0 
+    sdw1, sdb1, sdg1, sdw2, sdb2, sdg2 = 0, 0, 0, 0, 0, 0
     vdw1, vdb1, vdg1, vdw2, vdb2, vdg2 = 0, 0, 0, 0, 0, 0 
 
     loss_vec = []
@@ -149,22 +153,21 @@ def gradient_descent(x, y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, ewa_mu2, e
         for i in range(x.shape[0]):
             
             itr += 1
-            
-            z1_norm, z1_bnorm, std1, var1, mu1, a1, z2_norm, z2_bnorm, std2, var2, mu2, a2  = forward(x[i], w1, b1, g1, w2, b2, g2, keep_prob)
+
+            z1_norm, z1_bnorm, std1, var1, mu1, a1, z2_norm, z2_bnorm, std2, var2, mu2, a2 = forward(x[i], w1, b1, g1, w2, b2, g2, keep_prob)
             
             loss = cce(one_hot_y[i], a2)
             acc, pred = accuracy(y[i], a2) 
-            
-            dw1, db1, dg1, dw2, db2, dg2 = backward(x[i], one_hot_y[i], w2, w1, a2, a1, z2_norm, z1_bnorm, z1_norm, g2, g1, std2, std1 )
-            w1, b1, g1, w2, b2, g2 = update(w1, b1, g1, w2, b2, g2, dw1, db1, dg1, dw2, db2, dg2, vdw1, vdb1, vdg1, vdw2, vdb2, vdg2, sdw1, sdb1, sdg1, sdw2, sdb2, sdg2, alpha, beta_2, beta_1) 
+            dw1, db1, dg1, dw2, db2, dg2 = backward(x[i], one_hot_y[i] , w2,  a2, a1, z2_norm, z1_bnorm, z1_norm, g2, g1, std2, std1 )
+            w1, b1, g1, w2, b2, g2 = update(w1, b1, g1, w2, b2, g2, dw1, db1, dg1, dw2, db2, dg2, vdw1, vdb1, vdg1, vdw2, vdb2, vdg2,  sdw1, sdb1, sdg1, sdw2, sdb2, sdg2, alpha, beta_2, beta_1) 
 
             ewa_mu1, ewa_var1 = ewa_bnorm(mu1, var1, ewa_mu1, ewa_var1)
             ewa_mu2, ewa_var2 = ewa_bnorm(mu2, var2, ewa_mu2, ewa_var2)
 
             print(f"Epoch: {epoch} | Iteration: {i}")
-            print(f"Loss: {loss}")
-            print(f"Accuracy: {acc}\n")
-            
+            print(f"Loss: {loss}") 
+            print(f"Accuracy: {acc}\n")            
+                
             loss_vec.append(loss)
             acc_vec.append(acc)
             itr_vec.append(itr)
@@ -178,17 +181,17 @@ def gradient_descent(x, y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, ewa_mu2, e
 
 def model(x, y, input_features, hidden_sizes, output_size, alpha, beta_1, beta_2 , keep_prob, epochs, file, file2): 
     try:
-        w1, b1, g1, w2, b2, g2 = load_model(file)
+        w1, b1, g1, w2, b2, g2= load_model(file)
         ewa_mu1, ewa_var1, ewa_mu2, ewa_var2 = load_stat(file2)
         print(f"Succesfully loaded {file} and {file2}!\n")
     except FileNotFoundError:
         print(f"Model not found! Initializing new model with hidden size of {hidden_sizes}!")
-        w1, b1, g1, w2, b2, g2 = init_params(input_features,hidden_sizes , output_size=output_size )
-        ewa_mu1, ewa_var1, ewa_mu2, ewa_var2 = 0, 0, 0, 0 
+        w1, b1, g1, w2, b2, g2 = init_params(input_features, hidden_sizes , output_size=output_size )
+        ewa_mu1, ewa_var1, ewa_mu2, ewa_var2 = 0, 0, 0, 0
         print("Model Initialized!\n")
         t = 4.
         print(f"Training begins in {t} seconds.")
         time.sleep(t)     
         
-    w1, b1, g1, w2, b2, g2, epochs_vec, loss_vec, acc_vec, itr_vec, ewa_mu1, ewa_var1, ewa_mu2, ewa_var2 = gradient_descent(x, y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, ewa_mu2, ewa_var2, alpha, beta_1, beta_2 , keep_prob, epochs, file, file2)
+    w1, b1, g1, w2, b2, g2, epochs_vec, loss_vec, acc_vec, itr_vec, ewa_mu1, ewa_var1, ewa_mu2, ewa_var2 = gradient_descent(x, y, w1, b1, g1, w2, b2, g2, ewa_mu1, ewa_var1, ewa_mu2, ewa_var2, alpha, beta_1, beta_2, keep_prob, epochs, file, file2)
     return w1, g1, w2, b2, g2, epochs_vec, loss_vec, acc_vec, itr_vec, ewa_mu1, ewa_var1, ewa_mu2, ewa_var2
